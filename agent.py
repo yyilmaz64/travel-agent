@@ -17,14 +17,17 @@ def generate_travel_guide(cities: str, days: int, api_key: str) -> str:
         Kullanıcı şu şehir(leri) ziyaret edecek: {cities}
         Kullanıcının bu seyahat için ayırdığı toplam süre: {days} gün.
         
-        Lütfen şunları yap:
-        1. Bu şehir(ler)deki en önemli tarihi mekanlar ve kültürel miraslar hakkında kısa, ilgi çekici ve doyurucu bilgiler ver.
-        2. ÇOK ÖNEMLİ: Bahsettiğin HER tarihi mekan için mutlaka gerçek bir fotoğraf (görsel) ekle! Görselleri Markdown formatında şu şekilde ekle: `![Mekan Adı](https://loremflickr.com/800/400/mekanın_ingilizce_adı,history)` (örneğin: `![Eyfel Kulesi](https://loremflickr.com/800/400/eiffel,tower)` veya kesin bildiğin çalışan Wikipedia görsel url'si kullan.)
-        3. {days} günlük, lojistik açıdan mantıklı bir gezi rotası (itinerary) hazırla.
-        4. Turistlerin bilmesi gereken ulaşım, hava durumu, yöresel yemekler veya yerel kültür hakkında "Seyahat İpuçları" bölümü ekle.
+        LÜTFEN AŞAĞIDAKİ KURALLARA KESİNLİKLE UY:
+        1. Bu şehir(ler)deki önemli tarihi mekanlar hakkında ilgi çekici bilgiler ver.
+        2. ANLATTIĞIN HER TARİHİ MEKAN BAŞLIĞININ ALTINA MUTLAKA BİR FOTOĞRAF (GÖRSEL) EKLEMEK ZORUNDASIN! 
+           Bunu yapmak için şu tam formatı kullan:
+           `![Mekan İsmi](https://loremflickr.com/800/400/mekanın-ingilizce-adi,landmark)`
+           Örnek kullanım: `![Eyfel Kulesi](https://loremflickr.com/800/400/eiffel,tower,landmark)`
+           Lütfen bu adımı kesinlikle atlama, rehberin her yeri görsellerle dolu olsun!
+        3. {days} günlük, saat saat tasarlanmış mantıklı bir gezi rotası (itinerary) hazırla.
+        4. Bölgenin ulaşım, hava durumu ve yöresel yemekleri hakkında ipuçları ekle.
         
-        Yanıtını Markdown formatında, okunaklı başlıklar, alt başlıklar ve maddeler kullanarak Türkçe olarak ver.
-        Kullanıcıyı yolculuğa heyecanlandıracak, pozitif ve motive edici bir ton kullan!
+        Tüm yanıtını şık bir Markdown yapısında oluştur.
         """
         
         # En güncel ve hızlı modellerden biri olan gemini-2.5-flash kullanımı
