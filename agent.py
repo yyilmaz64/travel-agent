@@ -27,10 +27,11 @@ def get_wiki_image(query: str) -> str:
         pass
     return "https://images.unsplash.com/photo-1488646953014-c8cb89d03437?w=800&q=80"
 
-def generate_travel_guide(cities: str, days: int, api_key: str) -> str:
+def generate_travel_guide(cities: str, start_date, end_date, api_key: str) -> str:
     """
     Generates a travel guide using the Gemini API and injects Wikipedia images.
     """
+    days = (end_date - start_date).days + 1
     if not api_key:
         return "Hata: Lütfen geçerli bir Gemini API Anahtarı girin."
         
@@ -76,3 +77,69 @@ def generate_travel_guide(cities: str, days: int, api_key: str) -> str:
         return text
     except Exception as e:
         return f"Rehber oluşturulurken bir hata oluştu: {str(e)}"
+
+def generate_transport_plan(cities: str, start_date, end_date, api_key: str) -> str:
+    """
+    Generates flight and train recommendations with estimated prices.
+    """
+    if not api_key:
+        return "Hata: Lütfen geçerli bir Gemini API Anahtarı girin."
+        
+    try:
+        client = genai.Client(api_key=api_key)
+        
+        prompt = f"""
+        Sen uzman bir seyahat acentesi ve ulaşım planlayıcısısın.
+        Kullanıcı şu şehirlere seyahat edecek: {cities}
+        Gidiş Tarihi: {start_date}
+        Dönüş Tarihi: {end_date}
+        
+        Lütfen şunları yap:
+        1. Bu tarihler için tahmini uçak veya tren seferi seçeneklerini sun. Gerçekçi, ortalama güncel fiyat tahminleri ver (USD veya EUR cinsinden).
+        2. Havalimanından şehir merkezine ulaşım hakkında bilgi ver.
+        3. Şehirler arası geçiş varsa en mantıklı ulaşım yolunu (tren/otobüs/uçak) ve tahmini maliyetini belirt.
+        
+        Yanıtını şık bir Markdown formatında, tablolar veya maddeler kullanarak Türkçe olarak ver.
+        """
+        
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+        )
+        return response.text
+    except Exception as e:
+        return f"Ulaşım planı oluşturulurken bir hata oluştu: {str(e)}"
+
+def generate_hotel_plan(cities: str, start_date, end_date, api_key: str) -> str:
+    """
+    Generates hotel recommendations with estimated prices.
+    """
+    if not api_key:
+        return "Hata: Lütfen geçerli bir Gemini API Anahtarı girin."
+        
+    try:
+        client = genai.Client(api_key=api_key)
+        
+        prompt = f"""
+        Sen uzman bir otel rezervasyon danışmanısın.
+        Kullanıcı şu şehirlerde konaklayacak: {cities}
+        Giriş (Check-in) Tarihi: {start_date}
+        Çıkış (Check-out) Tarihi: {end_date}
+        
+        Lütfen şunları yap:
+        1. Bu şehirler için 3 farklı bütçe kategorisinde otel veya konaklama önerileri sun (tarihlere göre toplam tahmini ortalama fiyatları belirterek USD/EUR cinsinden):
+           - Lüks (5 Yıldız)
+           - Orta Segment (3-4 Yıldız / Butik)
+           - Bütçe Dostu (Hostel / Uygun Fiyatlı)
+        2. Her bütçe için tavsiye edilen bölgeleri/semtleri de söyle.
+        
+        Yanıtını şık bir Markdown formatında, tablolar veya maddeler kullanarak Türkçe olarak ver.
+        """
+        
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+        )
+        return response.text
+    except Exception as e:
+        return f"Konaklama planı oluşturulurken bir hata oluştu: {str(e)}"
