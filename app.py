@@ -1,5 +1,5 @@
 import streamlit as st
-from agent import generate_travel_guide
+from agent import generate_travel_guide, generate_transport_plan, generate_hotel_plan
 import os
 from dotenv import load_dotenv
 
@@ -73,8 +73,6 @@ if st.button("🗺️ Planımı Oluştur!", type="primary"):
     elif not api_key_input:
         st.warning("Lütfen Gemini API Anahtarınızı girin.")
     else:
-        from agent import generate_transport_plan, generate_hotel_plan
-        
         st.success("Sistem çalışıyor, lütfen bekleyin... 🎉")
         st.markdown("---")
         
