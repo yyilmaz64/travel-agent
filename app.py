@@ -37,31 +37,32 @@ st.markdown("""
 st.markdown('<div class="main-title">🌍 AI Tur Rehberi & Planlayıcı</div>', unsafe_allow_html=True)
 st.markdown('<div class="sub-title">Tüm dünyadan tarihi şehirleri keşfedin ve saniyeler içinde kişisel seyahat rotanızı oluşturun!</div>', unsafe_allow_html=True)
 
-# Kenar çubuğu (Sidebar)
-with st.sidebar:
-    st.header("✈️ Seyahat Detayları")
+# Kullanıcı Girdi Alanları (Ana Ekranda)
+st.markdown("### ✈️ Seyahat Detayları")
+col1, col2 = st.columns([3, 1])
+with col1:
     cities = st.text_input("Gidilecek Şehir(ler)", placeholder="Örn: İstanbul, Roma, Tokyo")
+with col2:
     days = st.number_input("Gün Sayısı", min_value=1, max_value=30, value=3)
-    
-    st.markdown("---")
-    st.header("🔑 API Ayarları")
-    api_key_input = st.text_input(
-        "Google Gemini API Anahtarı", 
-        type="password", 
-        value=os.getenv("GEMINI_API_KEY", ""),
-        help="Kendi Google Gemini API anahtarınızı buraya girin. Eğer bir .env dosyanız varsa otomatik olarak yüklenecektir."
-    )
-    st.caption("[Buradan API anahtarı alabilirsiniz](https://aistudio.google.com/app/apikey)")
-    
-    st.markdown("---")
-    st.info("Bu uygulama, yapay zeka desteğiyle gidilecek yerlerdeki **tarihi mekanlar** hakkında bilgiler verir ve size özel günlük **gezi planı (itinerary)** çıkarır.")
+
+st.markdown("### 🔑 API Ayarları")
+api_key_input = st.text_input(
+    "Google Gemini API Anahtarı", 
+    type="password", 
+    value=os.getenv("GEMINI_API_KEY", ""),
+    help="Kendi Google Gemini API anahtarınızı buraya girin. Eğer bir .env dosyanız varsa otomatik olarak yüklenecektir."
+)
+st.caption("[Buradan API anahtarı alabilirsiniz](https://aistudio.google.com/app/apikey)")
+
+st.info("Bu uygulama, yapay zeka desteğiyle gidilecek yerlerdeki **tarihi mekanlar** hakkında bilgiler verir ve size özel günlük **gezi planı (itinerary)** çıkarır.")
+st.markdown("<br>", unsafe_allow_html=True)
 
 # Ana Buton ve Sonuç Gösterimi
 if st.button("🗺️ Rehberimi Oluştur!", type="primary"):
     if not cities:
-        st.warning("Lütfen gitmek istediğiniz şehir veya şehirleri sol menüden girin.")
+        st.warning("Lütfen gitmek istediğiniz şehir veya şehirleri girin.")
     elif not api_key_input:
-        st.warning("Lütfen sol menüden Gemini API Anahtarınızı girin.")
+        st.warning("Lütfen Gemini API Anahtarınızı girin.")
     else:
         with st.spinner(f"{cities} için {days} günlük harika bir plan hazırlanıyor..."):
             # Ajanımızdan yanıtı al
