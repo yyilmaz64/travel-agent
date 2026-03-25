@@ -19,8 +19,9 @@ def generate_travel_guide(cities: str, days: int, api_key: str) -> str:
         
         Lütfen şunları yap:
         1. Bu şehir(ler)deki en önemli tarihi mekanlar ve kültürel miraslar hakkında kısa, ilgi çekici ve doyurucu bilgiler ver.
-        2. {days} günlük, lojistik açıdan mantıklı bir gezi rotası (itinerary) hazırla.
-        3. Turistlerin bilmesi gereken ulaşım, hava durumu, yöresel yemekler veya yerel kültür hakkında "Seyahat İpuçları" bölümü ekle.
+        2. ÇOK ÖNEMLİ: Bahsettiğin HER tarihi mekan için mutlaka gerçek bir fotoğraf (görsel) ekle! Görselleri Markdown formatında şu şekilde ekle: `![Mekan Adı](https://loremflickr.com/800/400/mekanın_ingilizce_adı,history)` (örneğin: `![Eyfel Kulesi](https://loremflickr.com/800/400/eiffel,tower)` veya kesin bildiğin çalışan Wikipedia görsel url'si kullan.)
+        3. {days} günlük, lojistik açıdan mantıklı bir gezi rotası (itinerary) hazırla.
+        4. Turistlerin bilmesi gereken ulaşım, hava durumu, yöresel yemekler veya yerel kültür hakkında "Seyahat İpuçları" bölümü ekle.
         
         Yanıtını Markdown formatında, okunaklı başlıklar, alt başlıklar ve maddeler kullanarak Türkçe olarak ver.
         Kullanıcıyı yolculuğa heyecanlandıracak, pozitif ve motive edici bir ton kullan!
