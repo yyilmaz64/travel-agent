@@ -39,18 +39,19 @@ st.markdown('<div class="sub-title">Tüm dünyadan tarihi şehirleri keşfedin v
 
 # Kullanıcı Girdi Alanları (Ana Ekranda)
 st.markdown("### ✈️ Seyahat Detayları")
-col1, col2 = st.columns([3, 1])
+col1, col2, col3 = st.columns([2, 1, 1])
+
 with col1:
     cities = st.text_input("Gidilecek Şehir(ler)", placeholder="Örn: İstanbul, Roma, Tokyo")
+
+import datetime
+today = datetime.date.today()
+
 with col2:
-    import datetime
-    today = datetime.date.today()
-    dates = st.date_input("Seyahat Tarihleri", value=(today, today + datetime.timedelta(days=3)), min_value=today)
-    
-if dates and len(dates) == 2:
-    start_date, end_date = dates
-else:
-    start_date = end_date = None
+    start_date = st.date_input("Gidiş Tarihi", value=today, min_value=today, format="DD/MM/YYYY")
+
+with col3:
+    end_date = st.date_input("Dönüş Tarihi", value=today + datetime.timedelta(days=3), min_value=start_date, format="DD/MM/YYYY")
 
 st.markdown("### 🔑 API Ayarları")
 api_key_input = st.text_input(
