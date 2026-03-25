@@ -1,9 +1,35 @@
 import os
+import re
+import wikipedia
 from google import genai
+
+wikipedia.set_lang('en') # Aramaların daha isabetli olması için İngilizce yapıyoruz
+
+def get_wiki_image(query: str) -> str:
+    """Takes a query, searches Wikipedia, and returns a valid image URL."""
+    try:
+        results = wikipedia.search(query)
+        if not results:
+            return "https://images.unsplash.com/photo-1488646953014-c8cb89d03437?w=800&q=80" # Placeholder manzara
+        
+        try:
+            page = wikipedia.page(results[0], auto_suggest=False)
+        except wikipedia.exceptions.DisambiguationError as e:
+            # Çok anlamlılık varsa ilk seçeneği al
+            page = wikipedia.page(e.options[0], auto_suggest=False)
+            
+        for img in page.images:
+            img_lower = img.lower()
+            # Gerçek bir fotoğraf olduğundan emin olmak için svg ve ikonları filtreliyoruz
+            if img_lower.endswith(('.jpg', '.jpeg', '.png')) and not any(x in img_lower for x in ['icon', 'logo', 'map', 'flag', 'symbol', 'coat_of_arms']):
+                return img
+    except Exception:
+        pass
+    return "https://images.unsplash.com/photo-1488646953014-c8cb89d03437?w=800&q=80"
 
 def generate_travel_guide(cities: str, days: int, api_key: str) -> str:
     """
-    Generates a travel guide using the Gemini API.
+    Generates a travel guide using the Gemini API and injects Wikipedia images.
     """
     if not api_key:
         return "Hata: Lütfen geçerli bir Gemini API Anahtarı girin."
@@ -20,10 +46,10 @@ def generate_travel_guide(cities: str, days: int, api_key: str) -> str:
         LÜTFEN AŞAĞIDAKİ KURALLARA KESİNLİKLE UY:
         1. Bu şehir(ler)deki önemli tarihi mekanlar hakkında ilgi çekici bilgiler ver.
         2. ANLATTIĞIN HER TARİHİ MEKAN BAŞLIĞININ ALTINA MUTLAKA BİR FOTOĞRAF (GÖRSEL) EKLEMEK ZORUNDASIN! 
-           Bunu yapmak için şu tam formatı kullan:
-           `![Mekan İsmi](https://loremflickr.com/800/400/mekanın-ingilizce-adi,landmark)`
-           Örnek kullanım: `![Eyfel Kulesi](https://loremflickr.com/800/400/eiffel,tower,landmark)`
-           Lütfen bu adımı kesinlikle atlama, rehberin her yeri görsellerle dolu olsun!
+           Sistemimizin gerçek fotoğrafları çekebilmesi için şu FORMATI KESİNLİKLE KULLAN:
+           `![Mekan İsmi](WIKI_RESIM:Mekanin_Ingilizce_Adi)`
+           Örnek kullanım: `![Eyfel Kulesi](WIKI_RESIM:Eiffel Tower)` veya `![Kolezyum](WIKI_RESIM:Colosseum)`
+           Lütfen normal url (http...) YAZMA. Sadece `WIKI_RESIM:Arama_Kelimesi` formatını kullan.
         3. {days} günlük, saat saat tasarlanmış mantıklı bir gezi rotası (itinerary) hazırla.
         4. Bölgenin ulaşım, hava durumu ve yöresel yemekleri hakkında ipuçları ekle.
         
@@ -35,6 +61,18 @@ def generate_travel_guide(cities: str, days: int, api_key: str) -> str:
             model='gemini-2.5-flash',
             contents=prompt,
         )
-        return response.text
+        
+        text = response.text
+        
+        # WIKI_RESIM etiketlerini bulup gerçek Wikipedia görselleri ile değiştiriyoruz
+        def replace_image(match):
+            alt_text = match.group(1)
+            query = match.group(2)
+            img_url = get_wiki_image(query)
+            return f"![{alt_text}]({img_url})"
+
+        text = re.sub(r'!\[([^\]]+)\]\(WIKI_RESIM:([^\)]+)\)', replace_image, text)
+        
+        return text
     except Exception as e:
         return f"Rehber oluşturulurken bir hata oluştu: {str(e)}"
