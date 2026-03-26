@@ -39,18 +39,20 @@ st.markdown('<div class="sub-title">Tüm dünyadan tarihi şehirleri keşfedin v
 
 # Kullanıcı Girdi Alanları (Ana Ekranda)
 st.markdown("### ✈️ Seyahat Detayları")
-col1, col2, col3 = st.columns([2, 1, 1])
 
-with col1:
-    cities = st.text_input("Gidilecek Şehir(ler)", placeholder="Örn: İstanbul, Roma, Tokyo")
+col_a, col_b = st.columns(2)
+with col_a:
+    start_city = st.text_input("Kalkış Şehri (Nereden?)", placeholder="Örn: Ankara, İstanbul, Londra")
+with col_b:
+    cities = st.text_input("Gidilecek Lokasyonlar (Nereye?)", placeholder="Örn: Paris, Berlin, Roma")
 
 import datetime
 today = datetime.date.today()
 
-with col2:
+col_c, col_d = st.columns(2)
+with col_c:
     start_date = st.date_input("Gidiş Tarihi", value=today, min_value=today, format="DD/MM/YYYY")
-
-with col3:
+with col_d:
     end_date = st.date_input("Dönüş Tarihi", value=today + datetime.timedelta(days=3), min_value=start_date, format="DD/MM/YYYY")
 
 st.markdown("### 🔑 API Ayarları")
@@ -67,7 +69,9 @@ st.markdown("<br>", unsafe_allow_html=True)
 
 # Ana Buton ve Sonuç Gösterimi
 if st.button("🗺️ Planımı Oluştur!", type="primary"):
-    if not cities:
+    if not start_city:
+        st.warning("Lütfen yolculuğa başlayacağınız kalkış şehrini girin.")
+    elif not cities:
         st.warning("Lütfen gitmek istediğiniz şehir veya şehirleri girin.")
     elif not start_date or not end_date:
         st.warning("Lütfen geçerli bir gidiş ve dönüş tarihi seçin.")
@@ -82,15 +86,15 @@ if st.button("🗺️ Planımı Oluştur!", type="primary"):
         
         with tab1:
             with st.spinner(f"{cities} için tarihi rehber ve rota hazırlanıyor..."):
-                guide_result = generate_travel_guide(cities, start_date, end_date, api_key_input)
+                guide_result = generate_travel_guide(start_city, cities, start_date, end_date, api_key_input)
                 st.markdown(guide_result)
                 
         with tab2:
-            with st.spinner(f"{cities} için uçuş ve tren seçenekleri aranıyor..."):
-                transport_result = generate_transport_plan(cities, start_date, end_date, api_key_input)
+            with st.spinner(f"{start_city} kalkışlı uçuş ve ulaşım seçenekleri aranıyor..."):
+                transport_result = generate_transport_plan(start_city, cities, start_date, end_date, api_key_input)
                 st.markdown(transport_result)
                 
         with tab3:
             with st.spinner(f"Otel ve konaklama fiyatları tahmin ediliyor..."):
-                hotel_result = generate_hotel_plan(cities, start_date, end_date, api_key_input)
+                hotel_result = generate_hotel_plan(start_city, cities, start_date, end_date, api_key_input)
                 st.markdown(hotel_result)
