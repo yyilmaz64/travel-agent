@@ -1,30 +1,24 @@
 import os
 import re
-import wikipedia
+from duckduckgo_search import DDGS
 from google import genai
 
-wikipedia.set_lang('en') # Aramaların daha isabetli olması için İngilizce yapıyoruz
-
-def get_wiki_image(query: str) -> str:
-    """Takes a query, searches Wikipedia, and returns a valid image URL."""
+def get_real_photo(query: str) -> str:
+    """Takes a query, searches DuckDuckGo Images specifically for photography, and returns a valid image URL."""
     try:
-        results = wikipedia.search(query)
-        if not results:
-            return "https://images.unsplash.com/photo-1488646953014-c8cb89d03437?w=800&q=80" # Placeholder manzara
-        
-        try:
-            page = wikipedia.page(results[0], auto_suggest=False)
-        except wikipedia.exceptions.DisambiguationError as e:
-            # Çok anlamlılık varsa ilk seçeneği al
-            page = wikipedia.page(e.options[0], auto_suggest=False)
-            
-        for img in page.images:
-            img_lower = img.lower()
-            # Gerçek bir fotoğraf olduğundan emin olmak için svg ve ikonları filtreliyoruz
-            if img_lower.endswith(('.jpg', '.jpeg', '.png')) and not any(x in img_lower for x in ['icon', 'logo', 'map', 'flag', 'symbol', 'coat_of_arms']):
-                return img
+        # Arama terimine "travel photography" ekleyerek tabloları ve çizimleri eliyoruz
+        search_query = f"{query} landmark travel high quality photo"
+        results = DDGS().images(
+            keywords=search_query,
+            region="wt-wt",
+            safesearch="on",
+            max_results=1,
+        )
+        if results and len(results) > 0:
+            return results[0].get("image")
     except Exception:
         pass
+    # Hata durumunda (veya limit aşımında) varsayılan manzara fotoğrafı
     return "https://images.unsplash.com/photo-1488646953014-c8cb89d03437?w=800&q=80"
 
 def generate_travel_guide(cities: str, start_date, end_date, api_key: str) -> str:
@@ -65,11 +59,11 @@ def generate_travel_guide(cities: str, start_date, end_date, api_key: str) -> st
         
         text = response.text
         
-        # WIKI_RESIM etiketlerini bulup gerçek Wikipedia görselleri ile değiştiriyoruz
+        # WIKI_RESIM etiketlerini bulup DuckDuckGo gerçek görselleri ile değiştiriyoruz
         def replace_image(match):
             alt_text = match.group(1)
             query = match.group(2)
-            img_url = get_wiki_image(query)
+            img_url = get_real_photo(query)
             return f"![{alt_text}]({img_url})"
 
         text = re.sub(r'!\[([^\]]+)\]\(WIKI_RESIM:([^\)]+)\)', replace_image, text)
