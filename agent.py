@@ -85,8 +85,8 @@ def generate_travel_guide(start_city: str, cities: str, start_date, end_date, ap
         text = re.sub(r'!\[([^\]]+)\]\(WIKI_RESIM:([^\)]+)\)', replace_image, text)
         
         return text
-    except Exception:
-        return "⏳ **Sistem şu anda çok yoğun çalışıyor**, arka planda verileri derlemeye devam ediyorum. Sonucu en kısa zamanda paylaşacağım. Lütfen 30 saniye ila 1 dakika bekleyip 'Planımı Oluştur' butonuna yeniden basınız."
+    except Exception as e:
+        return f"Rehber oluşturulurken teknik bir hata oluştu: {str(e)}"
 
 def generate_transport_plan(start_city: str, cities: str, start_date, end_date, api_key: str) -> str:
     """
@@ -116,8 +116,8 @@ def generate_transport_plan(start_city: str, cities: str, start_date, end_date, 
         
         text = _generate_with_retry(client, prompt)
         return text
-    except Exception:
-        return "⏳ **Sistem şu anda çok yoğun çalışıyor**, ulaşım rotalarını arka planda hesaplıyorum. Lütfen 30 saniye ila 1 dakika bekleyip sayfayı yenilemeden tekrar onaylayınız."
+    except Exception as e:
+        return f"Ulaşım planı oluşturulurken teknik bir hata oluştu: {str(e)}"
 
 def generate_hotel_plan(start_city: str, cities: str, start_date, end_date, api_key: str) -> str:    
     """
@@ -149,5 +149,5 @@ def generate_hotel_plan(start_city: str, cities: str, start_date, end_date, api_
         
         text = _generate_with_retry(client, prompt)
         return text
-    except Exception:
-        return "⏳ **Sistem şu anda çok yoğun çalışıyor**, tüm otel fiyatlarını veritabanından çekiyorum. Lütfen çok kısa bir süre (yaklaşık 1 dakika) bekleyip tekrar butona basınız."
+    except Exception as e:
+        return f"Konaklama planı oluşturulurken teknik bir hata oluştu: {str(e)}"
