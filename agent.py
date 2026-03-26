@@ -1,5 +1,6 @@
 import os
 import re
+import time
 from duckduckgo_search import DDGS
 from google import genai
 
@@ -21,6 +22,26 @@ def get_real_photo(query: str) -> str:
         pass
     # Hata durumunda (veya limit aşımında) varsayılan manzara fotoğrafı
     return "https://images.unsplash.com/photo-1488646953014-c8cb89d03437?w=800&q=80"
+
+def _generate_with_retry(client, prompt, retries=3, delay=18):
+    """
+    Google Gemini API limitleri asildiginda veya hata alindiginda arkaplanda otomatik bekleme yapar.
+    """
+    for attempt in range(retries):
+        try:
+            response = client.models.generate_content(
+                model='gemini-2.5-flash',
+                contents=prompt,
+            )
+            return response.text
+        except Exception as e:
+            error_str = str(e)
+            if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str or "Quota" in error_str:
+                if attempt < retries - 1:
+                    time.sleep(delay)  # 18 saniye bekle ve tekrar dene
+                    continue
+            # Eger baska bir hataysa veya son denemeyse
+            raise e
 
 def generate_travel_guide(start_city: str, cities: str, start_date, end_date, api_key: str) -> str:
     """
@@ -51,13 +72,8 @@ def generate_travel_guide(start_city: str, cities: str, start_date, end_date, ap
         Tüm yanıtını şık bir Markdown yapısında oluştur.
         """
         
-        # En güncel ve hızlı modellerden biri olan gemini-2.5-flash kullanımı
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt,
-        )
-        
-        text = response.text
+        # En güncel ve hızlı modellerden biri olan gemini-2.5-flash kullanımı (Retry ile)
+        text = _generate_with_retry(client, prompt)
         
         # WIKI_RESIM etiketlerini bulup DuckDuckGo gerçek görselleri ile değiştiriyoruz
         def replace_image(match):
@@ -69,8 +85,8 @@ def generate_travel_guide(start_city: str, cities: str, start_date, end_date, ap
         text = re.sub(r'!\[([^\]]+)\]\(WIKI_RESIM:([^\)]+)\)', replace_image, text)
         
         return text
-    except Exception as e:
-        return f"Rehber oluşturulurken bir hata oluştu: {str(e)}"
+    except Exception:
+        return "⏳ **Sistem şu anda çok yoğun çalışıyor**, arka planda verileri derlemeye devam ediyorum. Sonucu en kısa zamanda paylaşacağım. Lütfen 30 saniye ila 1 dakika bekleyip 'Planımı Oluştur' butonuna yeniden basınız."
 
 def generate_transport_plan(start_city: str, cities: str, start_date, end_date, api_key: str) -> str:
     """
@@ -98,13 +114,10 @@ def generate_transport_plan(start_city: str, cities: str, start_date, end_date, 
         Yanıtını şık bir Markdown formatında, tablolar veya maddeler kullanarak Türkçe olarak ver.
         """
         
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt,
-        )
-        return response.text
-    except Exception as e:
-        return f"Ulaşım planı oluşturulurken bir hata oluştu: {str(e)}"
+        text = _generate_with_retry(client, prompt)
+        return text
+    except Exception:
+        return "⏳ **Sistem şu anda çok yoğun çalışıyor**, ulaşım rotalarını arka planda hesaplıyorum. Lütfen 30 saniye ila 1 dakika bekleyip sayfayı yenilemeden tekrar onaylayınız."
 
 def generate_hotel_plan(start_city: str, cities: str, start_date, end_date, api_key: str) -> str:    
     """
@@ -134,10 +147,7 @@ def generate_hotel_plan(start_city: str, cities: str, start_date, end_date, api_
         Yanıtını şık bir Markdown formatında, tablolar veya maddeler kullanarak Türkçe olarak ver.
         """
         
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt,
-        )
-        return response.text
-    except Exception as e:
-        return f"Konaklama planı oluşturulurken bir hata oluştu: {str(e)}"
+        text = _generate_with_retry(client, prompt)
+        return text
+    except Exception:
+        return "⏳ **Sistem şu anda çok yoğun çalışıyor**, tüm otel fiyatlarını veritabanından çekiyorum. Lütfen çok kısa bir süre (yaklaşık 1 dakika) bekleyip tekrar butona basınız."
