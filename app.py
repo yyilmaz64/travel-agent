@@ -78,9 +78,6 @@ if st.button("🗺️ Planımı Oluştur!", type="primary"):
     elif not api_key_input:
         st.warning("Lütfen Gemini API Anahtarınızı girin.")
     else:
-        st.success("Sistem çalışıyor, lütfen bekleyin... 🎉")
-        st.markdown("---")
-        
         # 3 Sekme (Tab) oluştur
         tab1, tab2, tab3 = st.tabs(["🗺️ Seyahat Rotası", "✈️ Ulaşım (Uçak/Tren)", "🏨 Konaklama (Otel)"])
         

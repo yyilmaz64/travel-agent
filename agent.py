@@ -8,14 +8,15 @@ def get_real_photo(query: str) -> str:
     try:
         # Arama terimine "travel photography" ekleyerek tabloları ve çizimleri eliyoruz
         search_query = f"{query} landmark travel high quality photo"
-        results = DDGS().images(
-            keywords=search_query,
-            region="wt-wt",
-            safesearch="on",
-            max_results=1,
-        )
-        if results and len(results) > 0:
-            return results[0].get("image")
+        with DDGS(timeout=10) as ddgs:
+            results = ddgs.images(
+                keywords=search_query,
+                region="wt-wt",
+                safesearch="on",
+                max_results=1,
+            )
+            if results and len(results) > 0:
+                return results[0].get("image")
     except Exception:
         pass
     # Hata durumunda (veya limit aşımında) varsayılan manzara fotoğrafı
